@@ -1,0 +1,4 @@
+*.o
+out
+doc/src/*
+!doc/src/*.tex

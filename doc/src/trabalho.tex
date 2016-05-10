@@ -1,0 +1,922 @@
+\documentclass[brazil, a4paper,12pt]{article}
+\usepackage[brazil]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{indentfirst}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[usenames]{color}
+\geometry{a4paper,left=3cm,right=3cm,top=2.5cm,bottom=2.5cm}
+
+
+%Formatação de codigo fonte
+\lstset{language=C,
+keywordstyle=\color{red}\bf,
+stringstyle=\color{red}\it,
+commentstyle=\color{blue}\it,
+numbers=left,
+stepnumber=5,
+firstnumber=1,
+numberstyle=\tiny,
+extendedchars=true,
+breaklines=true,
+captionpos=b,
+tabsize=2,
+frame=single,
+basicstyle=\footnotesize,
+showstringspaces=false
+}
+\renewcommand{\lstlistingname}{Programa}
+\renewcommand{\lstlistlistingname}{Lista de Programas}
+
+\begin{document}
+\begin{titlepage}
+
+  \vfill
+
+  \begin{center}
+    \begin{large}
+      Universidade Federal do Paran\'a
+    \end{large}
+  \end{center}
+
+  \begin{center}
+    \begin{large}
+      Setor de Ciências Exatas
+    \end{large}
+  \end{center}
+
+  \begin{center}
+    \begin{large}
+      Departamento de Inform\'atica
+    \end{large}
+  \end{center}
+
+  \vfill
+
+  \begin{center}
+    \begin{Large}
+	      \textbf{ALGORITMOS E ESTRUTURAS DE DADOS II (CI056)} \\
+	        Segundo Trabalho Prático\\
+    \end{Large}
+  \end{center}
+
+
+  \vfill
+
+  \begin{center}
+    \begin{large}
+      Rudolf Copi Eckelberg
+    \end{large}
+  \end{center}
+
+  \begin{center}
+    \begin{large}
+      Professor - David Menotti\\
+    \end{large}
+  \end{center}
+
+  \vfill
+
+  \begin{center}
+    \begin{large}
+      Curitiba\\
+      \today \\
+    \end{large}
+  \end{center}
+
+\clearpage
+\tableofcontents 
+\listoffigures
+\lstlistoflistings
+\listoftables
+\end{titlepage}
+
+
+\section{Introdução}
+
+Este trabalho documenta a geração de uma API para alocação de vetores em memória, além de operações
+algébricas a eles relacionados. O objetivo é demonstrar conhecimentos em algoritmos para a construção de Tipos Abstratos de Dados e alocação dinâmica de memória em linguagem C.
+
+
+\subsection{Listas encadeadas}
+
+De acordo com \cite{ccompletoetotal:3ed}, uma estrutura é
+uma \textit{coleção de variáveis referenciadas por um nome}. Este
+projeto faz uso de estruturas em C para a definição de TADs.
+
+Uma estrutura em C é definida pela instrução \textit{struct} seguida de um bloco de declarações
+de variáveis. Essas variáveis serão subordinadas à estrutura. Para que a estrutura seja tratada
+pelo compilador C como um tipo de dados, a instrução \textit{typedef} deve preceder \textit{struct},
+e o nome do tipo de dados deve ser inserido logo após o bloco de declarações.
+
+\subsubsection{Listas encadeadas por cursores}
+
+asdf
+
+\subsection{Especificação do problema}
+
+O desafio é criar um TAD TMemoria capaz de armazenar dados simulando a memória real de um computador.
+Ele deve ser implementado a partir de uma lista duplamente encadeada por cursores. Uma lista
+auxiliar dentro do mesmo vetor deve organizar os espaços livres de memória.
+
+A memória ocupada deve ser ordenada pelos cursores (mas não necessariamente dentro do vetor, por
+otimização), e a memória livre será ordenada em ordem crescente de índice do vetor.
+
+As funções deste TAD devem incluir:
+
+\begin{itemize}
+ \item Criação de uma memória interna vazia;
+ \item Obtenção do número de células ocupadas;
+ \item Inserção de novo dado, mantendo os dados ordenados;
+ \item Remoção do primeiro ítem;
+ \item Remoçào do último ítem;
+ \item Impressão do conteúdo do TAD.
+\end{itemize}
+
+\section{Projeto e implementação dos algoritmos}
+
+Como há poucos erros possíveis para cada função desse TAD, não foi necessária a definição
+de um padrão de retorno rebuscado. Por simplificação, funções que podem falhar retornam
+1 em caso de sucesso e 0 (número zero) em caso de falha, para simplificar a leitura das
+invocações.
+
+\subsection{Tipo TMemoria}
+
+O tipo TMemoria é declarado em um arquivo de cabeçalho de mesmo nome, TMemoria.h.
+
+A parte relevante às aplicações externas (ou seja, o dado propriamente dito) é definido
+em uma estrutura chamada TItem.
+
+\lstinputlisting[caption = {TMemoria.h},label={TMemoria.h}]{../../TMemoria.h}
+
+Como não há especificação do tipo de dado a ser armazenado, o tipo escolhido, por simplicidade,
+foi o de um inteiro acompanhado de chave de ordenação. Para alterar esse comportamento, ou até
+mesmo para definir tipos mais complexos para TItem, o arquivo de cabeçalho pode ser estendido
+sem que as funções do TAD se quebrem.
+
+\subsubsection{Código fonte: TMemoria.c}
+
+As funções do TAD desenvolvido estão no arquivo TMemoria.c. A discussão
+das funções isoladamente se dá na seção seguinte: \textbf{Funções do
+tipo TMemoria}
+
+\lstinputlisting[caption = {TMemoria.c},label={TMemoria.c}]{../../TMemoria.c}
+
+\subsubsection{Funções do tipo TMemoria}
+
+As funções referentes ao tipo TMemoria, implementadas no arquivo
+TMemoria.c, são as seguintes:
+
+\begin{itemize}
+ \item zeraMemoria:
+ 
+ Recebe um ponteiro para um TMemoria (já alocado) e o inicializa para corresponder
+ a um espaço vazio de memória. Como a função não realiza por si a alocação de memória,
+ não há necessidade de verificação de sua saída, então seu retorno é vazio.
+
+ Antes que uma instância de TMemoria seja utilizada para qualquer fim, essa função DEVE
+ ser invocada sobre ela para garantir a coerência dos parâmetros internos. 
+ 
+ Formato:
+ \begin{lstlisting} 
+ int zeraMemoria(TMemoria* pMemoria)
+ \end{lstlisting} 
+ \textbf{Retorno:} vazio.
+ 
+ \item memoriaVazia:
+ 
+ Recebe um ponteiro para um TMemoria e avisa se a instância está vazia ou não.
+ 
+ Formato:
+ \begin{lstlisting} 
+ int memoriaVazia(TMemoria* pMemoria)
+ \end{lstlisting} 
+ \textbf{Retorno:} 1 caso a instância de TMemoria esteja vazia, 0 caso contrário.
+ 
+ \item numeroOcupadas:
+
+ Similar à função zeraMemoria, mas retorna o número de celulas ocupadas da instância
+ de TMemoria. 
+  
+ Formato:
+ \begin{lstlisting} 
+ int numeroOcupadas(TMemoria* pMemoria)
+ \end{lstlisting}
+ \textbf{Retorno:} Número (inteiro) de células ocupadas no espaço da memória.
+ 
+ \item encontraAnterior:
+
+ Função auxiliar para garantir a ordem dos cursores no momento da inserção de um novo ítem na lista.
+
+ Recebe um ponteiro para um TMemoria e um inteiro correspondente a uma chave de ordenação.
+ 
+ A função varre a instância de TMemoria comparando as chaves com a chave fornecida. A função
+ retorna o índice no vetor da última célula cuja chave é menor que a chave fornecida.
+ 
+ A forma correta de interpretar o retorno dessa função é de que seu retorno é o valor após
+ o qual o ítem com aquela chave deve ser inserido.
+  
+ Formato:
+ \begin{lstlisting} 
+ int encontraAnterior(TMemoria* pMemoria, int chave)
+ \end{lstlisting}
+ \textbf{Retorno:} Número inteiro do índice do elemento anterior ao ítem sendo inserido na lista.
+ 
+ \item insereItem:
+ 
+ Recebe um ponteiro para um TMemoria e outro para um TItem. A função insere o TItem na primeira
+ posição de memória livre, então invoca encontraAnterior para saber qual ítem da lista é a chave
+ imediatamente anterior à sua, então atualiza os cursores para manter a ordem.
+ 
+ Formato:
+ \begin{lstlisting} 
+ int insereItem(TMemoria* pMemoria, TItem* pItem)
+ \end{lstlisting}
+ \textbf{Retorno:} 1 em caso de sucesso, 0 caso o vetor não tenha espaço livre.
+ 
+ \item mantemOrganizado:
+
+ Função auxiliar para remoção de ítens ao começo ou final da lista. Recebe um ponteiro
+ para TMemoria e um cursor para o ítem removido. Varre a lista para garantir que trechos
+ fragmentados de TMemoria não comprometam a ordem dos cursores do espaço ocupado e do
+ espaço livre.
+ 
+ As fragmentações ocorrem quando ítens são repetidamente removidos do começo da lista e
+ novos ítens são adicionados, deixando espaços livres no meio do vetor e inserindo ítens
+ de chaves altas e baixas em partes internas. Dessa forma, o primeiro ou último elemento a
+ serem removidos podem não ter uma relação de vizinhança direta com os espaços livres que serão
+ seus novos vizinhos na lista de espaços vazios.
+ 
+ Formato:
+ \begin{lstlisting} 
+ void mantemOrganizado(TMemoria* pMemoria, int curr_idx)
+ \end{lstlisting}
+ \textbf{Retorno:} vazio.
+ 
+ \item removePrimeiro e removeUltimo:
+
+ Funções gêmeas para remoçõa de ítens da lista de memória ocupada. Funcionam como uma forma
+ de pop: extraem o conteúdo do elemento para retorno e então o removem da lista.
+ 
+ Caso o elemento esteja antes do primeiro espaço vago, a função tem comportamento simplificado,
+ pois o novo elemento livre será o novo primeiro ítem da lista de elementos livres. Caso contrário,
+ a função mantemOrganizado é utilizada para encontrar sua vizinhança, de maneira similar à inserção
+ 
+ 
+ $$ R = \vec{v_1} \cdot \left( \vec{v_2} \times \vec{v_3} \right) $$
+ 
+ Formato:
+ \begin{lstlisting} 
+ int ProdutoMisto(double *res, TVetor v1, TVetor v2, TVetor v3)
+ \end{lstlisting}
+ \textbf{Retorno:} 0 em caso de sucesso, -1 caso ProdutoVetorial dê
+ erro de alocação de memória e 1 caso as dimensões dos operandos sejam 
+ incompatíveis. Como não há um vetor de resultado, o erro dimensional
+ retornado pela função ProdutoVetorial é ignorado.
+
+ \item ImprimeVetor:
+ 
+ Imprime um vetor na saída padrão (usando printf). A função utiliza
+ a dimensão do vetor como referência para construir a saída. O formato
+ de saída é de números separados por espaços entre colchetes, similar
+ à notação usada no Matlab.
+ 
+ \begin{lstlisting} 
+ void ImprimeVetor(TVetor vec)
+ \end{lstlisting}
+ \textbf{Retorno:} Não há valor de retorno.
+ 
+ \item LiberaVetor:
+ 
+ Desaloca memória do núcleo do vetor e seta al para zero, para que possa
+ ser usado por outras funções.
+ 
+ \begin{lstlisting}
+ void LiberaVetor(TVetor* vec)
+ \end{lstlisting} 
+ \textbf{Retorno:} Não há valor de retorno
+ 
+\end{itemize}
+
+\subsection{Análise de complexidade dos algoritmos para TVetor}
+
+Nas funções tratadas, a única estrutura variável é o conjunto de coordenadas. A análise de
+complexidade pode, nesse caso, ser feita em função da dimensão dos vetores usados, uma
+vez que ela definirá tanto a duração dos loops quanto a memória
+utilizada.
+
+Para essa análise, foi considerado que as operações mais custosas são as de I/O, como scanf e
+printf (a complexidade interna dessas funções foi desprezada). Em segundo lugar, o acesso direto à
+memória foi considerado - como nas operações com vetores.
+
+O resumo das funções complexidade está na tabela \ref{tab:TVetor}. A discussão pormenorizada se dará
+adiante.
+
+\begin{table}
+ \caption{Complexidade das funções em TVetor.c}
+ \label{tab:TVetor}
+ \begin{center}
+  \begin{tabular}{|l|cc|}
+   \hline
+   Função & F(n) & F(n) em $O$ \\
+   \hline
+   \hline
+   InicializaVetor  &  $c$      &  $O(1)$ \\
+   LiberaVetor      &  $c$      &  $O(1)$ \\
+   LeVetor          &  $n+1$    &  $O(n)$ \\
+   CriaVetor        &  $2n$     &  $O(n)$ \\
+   SomaVetor        &  $3n+c$   &  $O(n)$ \\
+   SubtraiVetor     &  $3n+c$   &  $O(n)$ \\
+   ProdutoEscalar   &  $2n+c$   &  $O(n)$ \\
+   ProdutoVetorial  &  $c$      &  $O(1)$ \\
+   ProdutoMisto     &  $c$      &  $O(1)$ \\
+   ImprimeVetor     &  $n$      &  $O(n)$ \\
+   \hline
+  \end{tabular}
+ \end{center}
+\end{table}
+
+\subsubsection{Chamadas de sistema: InicializaVetor e LiberaVetor}
+
+As funções \textbf{InicializaVetor} e \textbf{LiberaVetor}, definidas
+para realizar as chamadas de sistema para alocação de memória, não dependem de nenhum fator variável das entradas. Dessa forma, elas terão complexidade independente da entrada, e serão consideradas constantes.
+
+Assim, para essas duas funções:
+
+$$ F(n) = O(1) $$
+
+\subsubsection{LeVetor}
+
+O número de chamadas para scanf é o fator relevante para definir a complexidade dessa função, 
+desconsiderando a complexidade da função em si.
+
+Inicialmente, há uma chamada de scanf para a leitura da dimensão do TVetor, e em seguida, um loop
+lê elementos de 0 a $dim-1$. Assim, o número total de chamadas a scanf, desconsiderando a diferença de
+complexidade entre o \textit{parse} para inteiro e ponto flutuante, será
+\begin{equation}
+\label{complexidade:LeVetor}
+F(n) = \sum_{i=0}^{n-1}1 + 1 = n + 1
+\end{equation}
+
+Em notação $O$:
+
+$$ F(n) = O(n) $$
+
+\subsubsection{CriaVetor}
+
+CriaVetor é uma função muito mais simples que LeVetor, uma vez que a operação se limita a realizar
+uma comparação, desempacotar um elemento da pilha e realizar uma atribuição em um vetor.
+
+Os acessos a memória RAM serão as operações relevantes no loop. Assim, cada iteração terá um elemento
+retirado da pilha e uma escrita em elemento de vetor.
+\begin{equation}
+\label{complexidade:CriaVetor}
+F(n) = \sum_{i=0}^{n-1}\left(1 + 1\right) = 2n
+\end{equation}
+logo,
+
+$$ F(n) = O(n) $$
+
+\subsubsection{SomaVetor e SubtraiVetor}
+
+As duas funções são implementadas de forma similar, e são tratadas
+aqui como funções gêmeas. Dessa forma, a análise a seguir, para 
+SomaVetor, será também válida para SubtraiVetor.
+
+ A função SomaVetor realiza uma chamada de sistema para alocação de memória, mas a parte relevante
+se dá no loop, onde ocorrem três acessos de memória (dois para leitura e um para escrita). Dessa
+forma:
+
+\begin{equation}
+\label{complexidade:SomaVetor}
+F(n) = \sum_{i=0}^{n-1}3 + c = 3n + c, \hspace{12pt} c \hspace{6pt} {\mbox constante}
+\end{equation}
+logo,
+$$ F(n) = O(n) $$
+
+\subsubsection{ProdutoEscalar}
+
+O produto escalar é similar à soma e à subtração, mas não precisa escrever diretamente na memória
+em cada iteração, uma vez que os resultados são incrementados em um ponto flutuante. Dessa forma,
+as operações relevantes no loop se tornam os dois acessos de leitura nos vetores:
+
+\begin{equation}
+\label{complexidade:ProdutoEscalar}
+F(n) = \sum_{i=0}^{n-1}2 + c = 2n + c, \hspace{12pt} c \hspace{6pt} {\mbox constante}
+\end{equation}
+logo,
+$$ F(n) = O(n) $$
+
+\subsubsection{ProdutoVetorial}
+
+Dada a limitação de dimensão do produto vetorial, a entrada é fixa. Isso significa que n, para
+essa função, é sempre o mesmo.
+
+Há uma chamada para a função CriaVetor com n=3. Em seguida, são realizadas iterações com $i$
+de zero a dois e $j$ de zero a dois, das quais 3 não são válidas ($i \neq j$), cada uma usando
+3 acessos de memória:
+
+\begin{equation}
+\label{complexidade:ProdutoVetorial}
+F(n) = \sum_{i=0}^{2}2 + \left(\sum_{i=0}^{2}\sum_{j=0}^{2}3 - 3.3\right) = {\mbox constante}
+\end{equation}
+assim,
+$$ F(n) = O(1) $$
+
+\subsubsection{ProdutoMisto}
+
+A função ProdutoMisto, por depender de um produto vetorial, se dá em vetores de dimensão 3. Há uma
+chamada para ProdutoVetorial e outra para ProdutoEscalar, seguida de uma chamada de sistema para
+liberar o vetor.
+
+A complexidade de ProdutoVetorial foi definida em (\ref{complexidade:ProdutoVetorial}) e a
+complexidade do ProdutoEscalar em (\ref{complexidade:ProdutoEscalar}). A soma dessas equações é:
+
+\begin{equation}
+\label{complexidade:ProdutoMisto}
+F(n) = c + 2.3 = {\mbox constante}
+\end{equation}
+logo,
+$$ F(n) = O(1) $$
+
+\subsubsection{ImprimeVetor}
+
+A operação considerada mais complexa nessa função é a chamada a printf. O loop acontece de zero até
+a dimensão do vetor, ou seja, $n$ vezes.
+
+\begin{equation}
+\label{complexidade:ImprimeVetor}
+F(n) = \sum_{i=0}^{n-1} = n
+\end{equation}
+o que tem por conclusão que
+
+$$ F(n) = O(n) $$
+
+\subsection{Tipo TConj}
+
+Da mesma maneira que TVetor, TConj tem sua declaração em TConj.h.
+
+O tipo TConj é um conjunto de estruturas tipo TVetor. Seu núcleo é
+um ponteiro do tipo TVetor, e seu tamanho é chamado n.
+
+Diferente de TVetor, al não define um TConj vazio, mas apenas um TConj inicializado.
+É apenas usado para evitar erros de segmentação na entrada das funções.
+
+As funções dessa TAD permitem manipular vetores como um conjunto.
+Com alterações futuras, ela pode ser ampliada para dar suporte a
+diversas outras operações além daquelas aqui definidas.
+
+
+
+\subsubsection{Código fonte: TConj.c}
+
+Aqui são definidas as funções da TAD TConj. A discussão sobre seu funcionamento e forma de uso se dará na seção \textbf{Funções do tipo TConj}.
+
+
+
+\subsubsection{Funções do tipo TConj}
+
+Para separá-las das funções do tipo TVetor, as funções de TConj são
+todas prefixadas com \textbf{Conj\_}.
+
+As funções referentes ao tipo TConj, implementadas no arquivo
+TConj.c, são as seguintes:
+
+\begin{itemize}
+ \item Conj\_InicializaConj:
+ 
+ Recebe um ponteiro para um TConj e inicializa as variáveis para condizer com um
+ conjunto vazio.
+ 
+ O núcleo recebe espaço alocado dinamicamente para 20 TVetores, e a variável $n$
+ é definida como zero, o que define um conjunto vazio.
+ 
+ Formato:
+ \begin{lstlisting} 
+ int Conj_InicializaConj(TConj* c)
+ \end{lstlisting} 
+ \textbf{Retorno:} 0 em caso de sucesso e -1 em caso de erro de alocação de memória.
+ 
+ \item Conj\_AmpliaConj:
+ 
+ Recebe um ponteiro para um TConj já inicializado e amplia seu núcleo para comportar mais 20
+ TVetores. O valor max do TConj é atualizado de acordo.
+
+ Formato:
+ \begin{lstlisting} 
+ int Conj_AmpliaConj(TConj* c)
+ \end{lstlisting} 
+ \textbf{Retorno:} 0 em caso de sucesso e -1 em caso de erro de alocação de memória.
+ 
+ \item Conj\_ReduzConj:
+ 
+ Recebe um ponteiro para um TConj já inicializado e reduz o espaço de seu núcleo em 20,
+ atualizando max de acordo.
+ 
+ Formato:
+ \begin{lstlisting} 
+ int Conj_ReduzConj(TConj* c)
+ \end{lstlisting} 
+ \textbf{Retorno:} 0 em caso de sucesso e -1 em caso de erro de alocação de memória.  
+ 
+ \item ClonaVetor:
+ 
+ Embora seja uma função para TVetores, foi criada para auxiliar funções
+ TConj. Recebe um ponteiro para um TVetor vazio e um TVetor qualquer.
+ 
+ O conteúdo do segundo argumento é copiado para o TVetor apontado pelo
+ primeiro, alocando memória para as coordenadas de acordo.
+ 
+  Formato:
+ \begin{lstlisting} 
+ void ClonaVetor(TVetor* clone, TVetor v)
+ \end{lstlisting} 
+ \textbf{Retorno:} 0 em caso de sucesso, -1 em caso de erro de alocação,
+ 2 caso al seja 0 no segundo argumento.
+
+ \item Conj\_VerificaDimensao(TConj c)
+ 
+ Recebe um TConj e verifica se todos os vetores têm a mesma dimensão.
+ É utilizado por outras funções para sanitizar os argumentos. É a única
+ função que retorna int sem seguir a convenção definida no início
+ dessa discussão.
+ 
+ \begin{lstlisting}
+ int Conj_VerificaDimensao(TVetor v)
+ \end{lstlisting} 
+ \textbf{Retorno:} 1 caso todos os vetores tenham mesma dimensao,
+ 0 caso contrário.
+
+ \item Conj\_AdicionaVetor:
+ 
+ Recebe um ponteiro para um TConj, c, e um TVetor v a ser adicionado a
+ ele.
+ 
+ Caso não haja espaço para o novo vetor, é realizada uma invocação a Conj\_AmpliaConj.
+ A cópia é feita a partir da função ClonaVetor.
+ 
+ \begin{lstlisting}
+ int Conj_AdicionaVetor(TConj* c, TVetor v)
+ \end{lstlisting} 
+ \textbf{Retorno:} 0 em caso de sucesso, -1 em caso de erro de alocação
+ de memória e 2 caso v seja vazio.
+ 
+ \item Conj\_RemoveVetor:
+ 
+ Recebe um ponteiro para um TConj e um índice, então remove o TVetor
+ apontado por ele.
+ 
+ A função inicialmente utiliza LiberVetor para desalocar o espaço do núcleo do 
+ vetor apontado pelo índice. Em seguida, copia os TVetores do núcleo para a esquerda, o
+ primeiro deles sobrescrevendo aquele que foi removido. Por fim,
+ verifica o tamanho para ver se há 20 ou mais espaços vagos no núcleo. Se
+ esse for o caso, Conj\_ReduzConj é invocado para reduzir o uso de memória dinâmica.
+
+ \begin{lstlisting}
+ int Conj_RemoveVetor(TConj* c, TVetor v)
+ \end{lstlisting} 
+ \textbf{Retorno:} 0 em caso de sucesso, -1 em caso de erro de alocação
+ de memória.
+ 
+ \item Conj\_UneConjuntos:
+ 
+ Recebe um ponteiro para um conjunto e um segundo conjunto, então os
+ funde no primeiro conjunto. O segundo conjunto não é alterado no
+ processo.
+ 
+ \begin{lstlisting}
+ int Conj_UneConjuntos(TConj* c, TVetor v)
+ \end{lstlisting} 
+ \textbf{Retorno:} 0 em caso de sucesso, -1 em caso de erro de alocação
+ de memória e 2 caso o segundo TConj não tenha sido alocado.
+
+ \item Conj\_SomaVetores:
+ 
+ Recebe um ponteiro para um TVetor vazio e um TConj. Os vetores do TConj
+ são somados e o resultado é armazenado no vetor apontado.
+ 
+ A função cria um TVetor auxiliar para armazenar resultados parciais,
+ e o loop usa o ClonaVetor para fazer as reatribuições.
+ 
+ \begin{lstlisting}
+ int Conj_SomaVetores(TVetor* result, TConj c)
+ \end{lstlisting} 
+ \textbf{Retorno:} 0 em caso de sucesso, -1 em caso de erro de alocação
+ de memória e 2 caso c não esteja inicializado ou v seja vazio.
+ 
+ \item Conj\_ImprimeConjunto:
+ 
+ Imprime todos os vetores de um conjunto TConj usando ImprimeVetor,
+ e separa cada impressão com um caractere de quebra de linha.
+ 
+ \begin{lstlisting}
+ void Conj_ImprimeConjunto(TConj c)
+ \end{lstlisting} 
+ \textbf{Retorno:} Não há valor de retorno.
+ 
+ \item Conj\_LiberaConjunto:
+ 
+ Desaloca memória, caso haja memória alocada, e seta al de um TConj
+ para zero - definindo-o como não inicializado.
+ 
+ \begin{lstlisting}
+ void Conj_LiberaConjunto(TConj* c)
+ \end{lstlisting} 
+ \textbf{Retorno:} Não há valor de retorno.
+
+\end{itemize}
+
+\subsection{Análise de complexidade dos algoritmos para TConj}
+
+A análise das funções de TConj se dará de forma similar às funções de TVetor, considerando os mesmos
+critérios de complexidade. O número de iterações será, na maioria dos casos, o número de vetores em
+TConj e nas dimensões dos TVetores.
+
+Para diferenciar o tamanho de TConj da dimensão dos TVetores, será utilizada a seguinte convenção:
+$n$ será o tamanho do TConj e $m$ será a dimensão do TVetor.
+
+\begin{table}
+ \caption{Complexidade das funções em TConj.c}[h]
+ \label{tab:TConj}
+ \begin{center}
+  \begin{tabular}{|l|cc|}
+   \hline
+   Função & F(n,m) & F(n,m) em $O$ \\
+   \hline
+   \hline
+   Conj\_InicializaConj   &  --             &  $O(1)$ \\
+   ClonaVetor             &  $2m+1$         &  $O(n)$ \\
+   Conj\_VerificaDimensao &  $n$            &  $O(n)$ \\
+   Conj\_AdicionaVetor    &  $2m+c$         &  $O(n)$ \\
+   Conj\_RemoveVetor      &  $2n+c$         &  $O(n)$ \\
+   Conj\_UneConjuntos     &  $2mn+n$        &  $O(mn)$ \\
+   Conj\_SomaVetores      &  $(2+c)m+5mn+c$ &  $O(mn)$ \\
+   Conj\_LiberaConjunto   &  $n$            &  $O(n)$ \\
+   \hline
+  \end{tabular}
+ \end{center}
+\end{table}
+
+
+\subsubsection{Conj\_InicializaConj}
+
+Essa é a função mais simples, uma vez que só realiza a atribuição de variáveis e a alocação inicial
+de vs para o conjunto. Sem maiores análises, a complexidade é fixa:
+$$ F(n) = O(1) $$
+
+\subsubsection{ClonaVetor}
+
+Como é uma função voltada ao TVetor, sua complexidade será definida pela dimensão do TVetor
+unicamente. A função realiza uma chamada de sistema para alocação de memória e, em cada iteração do
+loop seguinte, um acesso de leitura e um de escrita à memória. Assim:
+
+\begin{equation}
+\label{complexidade:ClonaVetor}
+F(m) = \sum_{i=0}^{m-1}\left(1 + 1\right) + 1 = 2m + 1
+\end{equation}
+logo,
+
+$$ F(m) = O(m) $$
+
+\subsubsection{Conj\_VerificaDimensao}
+
+Conj\_VerificaDimensao realiza uma comparação de um único valor em cada TVetor. Dessa forma,
+o número de iterações realizadas será igual ao número de vetores armazenados no conjunto. Cada
+verificação equivale a um acesso de memória para a localização da dimensão do TVetor.
+
+$$ F(n) = \sum_{i=0}^{k-1}1, \hspace{12pt} 2 \leq k \leq n $$
+
+Em especial, a função pode retornar falso caso algum vetor tenha dimensão diferente dos demais.
+Dessa forma, o loop pode ser interrompido antes que se verifiquem os $n$ valores, mas pelo menos
+duas buscas em memória são realizadas: uma para o elemento zero e outra para o primeiro elemento
+do loop.
+
+O melhor caso é quando os dois primeiros vetores têm dimensão diferente, o que garante que apenas
+duas verificações serão realizadas ($k=2$):
+
+\begin{equation}
+\label{complexidade:VerificaDimensaoMelhorCaso}
+F(n) = \sum_{i=0}^{1}1 = 2
+\end{equation}
+
+O pior caso é o caso em que as dimensões estão corretas - por sinal, o caso esperado para a maioria
+das invocações dessa função. Nesse caso, $k=n$. Então:
+
+\begin{equation}
+\label{complexidade:VerificaDimensaoPiorCaso}
+F(n) = \sum_{i=0}^{n-1}1 = n
+\end{equation}
+assim,
+$$ F(n) = O(n) $$
+
+\subsubsection{Conj\_AdicionaVetor}
+
+A função inclui um TVetor no final do núcleo do TConj. Assim, o tamanho do conjunto é irrelevante,
+e a operação realizada será sempre a mesma. Porém, a cópia do TVetor pra dentro do conjunto se dá
+com uma invocação de ClonaVetor. Adicionando uma complexidade constante $c$ à complexidade
+(\ref{complexidade:ClonaVetor}) de ClonaVetor, tem-se:
+
+\begin{equation}
+\label{complexidade:AdicionaVetor}
+F(m) = 2m + 1 + c = 2m + c
+\end{equation}
+o que implica que
+
+$$ F(m) = O(m) $$
+
+\subsubsection{Conj\_RemoveVetor}
+
+Caso a função remova elementos que não estão ao final do núcleo, torna-se necessário o deslocamento
+de cada TVetor após o índice removido para a esquerda. Assim, a complexidade será dependente do
+índice removido $k$ e do tamanho $n$ do TConj.
+
+É necessária uma chamada a LiberaVetor para desalocar a memória do TVetor removido. Cada iteração
+envolve uma leitura do índice $i+1$ e uma escrita no índice $i$. Assim:
+
+\begin{equation}
+\label{complexidade:RemoveVetor}
+F(n) = \sum_{i=k-1}^{n-1}2 + c = 2(n-k+1) + c = 2n - 2k + c
+\end{equation}
+
+O melhor caso será quando $k=n$, ou seja, a remoção do último TVetor do conjunto. A forma será:
+
+\begin{equation}
+\label{complexidade:RemoveVetorMelhorCaso}
+F(n) = 2n - 2k + c = c
+\end{equation}
+
+O pior caso é a remoção do primeiro elemento do conjunto, assim exigindo que todos os elementos sejam
+deslocados:
+
+\begin{equation}
+\label{complexidade:RemoveVetorPiorCaso}
+F(n) = 2n - 2k + c = 2n - 2 + c = 2n + c
+\end{equation}
+logo,
+
+$$ F(n) = O(n) $$
+
+\subsubsection{Conj\_UneConjuntos}
+
+A função realiza um loop nos índices do segundo vetor de 0 a $n-1$, e, a cada iteração, faz uma
+invocação de ClonaVetor (equação (\ref{complexidade:ClonaVetor})).
+
+Essa função não tem a exigência dos vetores terem a mesma dimensão. Assim, determinar a complexidade
+de acordo com a dimensão do vetor se torna uma tarefa mais complexa. Para esse cálculo, será
+considerado um conjunto com $n$ vetores de mesma dimensão $m$, para fins de simplificação. Essa
+dimensão pode ser a dimensão média dos vetores sem que haja prejuízo na análise.
+
+$$ F(n,m) = \sum_{i=0}^{n-1}\left( 2m + 1 \right) $$
+\begin{equation}
+\label{complexidade:UneConjuntos}
+F(n,m) = 2mn + n
+\end{equation}
+logo,
+
+$$ F(n,m) = O(mn) $$
+
+\subsubsection{Conj\_SomaVetores}
+
+Para garantir robustez, a função invoca inicialmente Conj\_VerificaDimensao e depois itera entre
+os vetores do conjunto, necessitando de uma invocação de ClonaVetor e uma de SomaVetor a cada passo.
+
+Como a função só é concluída caso Conj\_VerificaDimensao retorne verdadeiro, a execução se dará no seu
+pior caso. ClonaVetor e SomaVetor serão dependentes da dimensão do vetor, $m$, e a verificação das
+dimensões será dependente do tamanho do conjunto, $n$. Utilizando as equações (\ref{complexidade:SomaVetor}), (\ref{complexidade:ClonaVetor}) e
+(\ref{complexidade:VerificaDimensaoPiorCaso}):
+
+$$ F(n,m) = n + \sum_{i=0}^{n-1}\left((3m + c) + (2m + 1) \right) + c$$ 
+\begin{equation}
+\label{complexidade:SomaVetores}
+F(n,m) = (2+c)n + 5mn + c
+\end{equation}
+
+Pode-se dizer então que:
+
+$$ F(n,m) = O(mn) $$
+
+\subsubsection{Conj\_LiberaConjunto}
+
+A função itera nos índices do conjunto de 0 a $n-1$. A cada iteração ocorre uma chamada de sistema
+para liberação de memória alocada, que será o que definirá a complexidade para essa função.
+
+\begin{equation}
+\label{complexidade:LiberaConjunto}
+F(n) = \sum_{i=0}^{n-1}1 = n
+\end{equation}
+então
+
+$$ F(n) = O(n) $$
+%\lstinputlisting[caption = {Timer},label={prog:exemplo}]{programa.c}
+
+
+
+%\begin{table}
+% \caption{Dados referentes aos experimentos}
+% \label{tab:exemplo}
+% \begin{center}
+%  \begin{tabular}{l|ccc}
+%   Algoritmo & Tempo 1 & Tempo 2 & Tempo 3 \\
+%   \hline
+%   \hline
+%   Quicksort  &  10    &  20     &   30 \\
+%   HeapSort   &  10    &  60     &  530 \\
+%   BublleSort & 100    & 100     & 1000 \\
+%  \end{tabular}
+% \end{center}
+%\end{table}
+
+\section{Testes}
+
+O programa main.c foi escrito para realizar rotinas de teste com as funções de TVetor e TConj.
+
+Especificamente, ela foi escrita para verificar o funcionamento das funções e a confiabilidade dos
+resultados, mas com adaptações foi possível realizar testes de tempo com TVetor nas operações de
+soma, subtração e produto escalar, que são as de interesse do trabalho e que escalam com o tamanho
+da entrada.
+
+Para compilá-lo, basta utilizar as rotinas do Makefile presente no diretório (comando: make). A
+saída é um executável chamado teste. Ao executá-lo, a função LeVetor será invocada para iniciar a
+entrada de dados pelo usuário.
+
+Um segundo programa random\_data.c foi escrito para gerar arquivos de entrada para o programa de
+testes. Sua interface é simples: inovcação do nome do programa seguido de dois números, sendo o
+primeiro a dimensão dos vetores de teste e o segundo número o valor máximo para cada
+coordenada.
+
+Foram gerados 4 arquivos ASCII com diferentes dimensões de vetores para a realização de uma bateria
+de testes: 100, 200, 300 e 400, todos com coordenada máxima 100.
+
+O comando seguinte efetua a bateria de testes e exporta a saída para output.txt:
+
+\begin{lstlisting}[language=bash, caption={Invocação do teste}]
+for f in data/{1,2,3,4}00.txt; do echo $f >> data/output.txt; ./teste < $f | grep -i "tempo levado" >> data/output.txt; done
+\end{lstlisting}
+
+O comando sugerido escapa a verbosidade do teste completo e exporta apenas as informações de tempo.
+Ele também parte do pressuposto que o arquivo output.txt esteja vazio ou não exista (caso contrário,
+ele acumulará informações de diversas execuções).
+
+Os resultados obtidos estão na tabela \ref{tabela:tempos}.
+
+\begin{table}[h]
+ \caption{Tempo de execução para diferentes tamanhos de vetores}
+ \label{tabela:tempos}
+ \begin{center}
+  \begin{tabular}{|l|ccc|}
+  \hline
+   Arquivo  & Soma             & Subtração        & Produto escalar \\
+   \hline
+   \hline
+   100.txt  &  $5,2.10^{-5}$   &  $5,2.10^{-5}$   &  $2.10^{-6}$ \\
+   200.txt  &  $9,8.10^{-5}$   &  $8,2.10^{-5}$   &  $2.10^{-6}$ \\
+   300.txt  &  $2,01.10^{-4}$  &  $1,69.10^{-4}$  &  $4.10^{-6}$ \\
+   400.txt  &  $1,91.10^{-4}$  &  $1,64.10^{-4}$  &  $5.10^{-6}$ \\
+  \hline
+  \end{tabular}
+ \end{center}
+\end{table}
+
+Os resultados mostram que de 300 para 400, o tempo de execução começa a ser menor pra soma e
+subtração. Por outro lado, o produto escalar teve sua escala de tempo reduzida a um décimo
+das outras duas funções analisadas.
+
+\section{Conclusão}
+
+Ao final desse trabalho, conclui-se que é praticável a escrita de rotinas para manipulação de
+vetores e grupos de vetores a partir da definição de TADs.
+
+A maioria dos algoritmos tratados apresentou complexidade constante ou linear, salvo os exemplos
+em Conj\_UneConjuntos e Conj\_SomaVetores, que dependem do produto da dimensão de vetores com o
+tamanho do conjunto. Mesmo assim, todas as funções definidas são praticáveis, e, salvo ressalvas
+quanto à perda de precisão, podem ser utilizadas livremente em aplicações reais.
+
+Os tempos analisados para vetores de dimensões 100 a 400 mostraram que a medida de tempo de relógio
+de funções é realmente uma tarefa não linear e não intuitiva.
+
+Foi possível, assim, revisar e aplicar os conceitos referentes a alocação de memória e Tipos Abstratos
+de Dados em tópicos pontuais da Álgebra Linear.
+
+%\bibliographystyle{plain}
+%\bibliography{modelo}
+
+\begin{thebibliography}{9}
+
+\bibitem{aho:1983} Aho, Alfred V., Hopcroft, John E. e Ullman,
+Jeffrey D., {\em Data Structures and Algorithms}.
+Addison Wesley, 1983 (reimpresso com recorreções em 1987).
+\bibitem{elon:1998} Lima, Elon L., {\em Álgebra Linear}, 3ed.
+IMPA - Instituto de Matemática Pura e Aplicada, CNPq, 1998.
+\bibitem{ccompletoetotal:3ed} Schildt, H., {\em C Completo e Total}, 3ed.
+Editora Makron, 1997.
+\bibitem{ziviani:2004} Ziviani, Nivio, {\em Projeto de Algoritmos com implementações em PASCAL e C},
+2ed, Thomson, 2004.
+\end{thebibliography}
+
+\end{document}
