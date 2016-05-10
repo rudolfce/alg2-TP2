@@ -50,6 +50,11 @@ int main(int argc, char* argv[]){
     }
     removePrimeiro(pMemoria, &item);
     removePrimeiro(pMemoria, &item);
+
+    if(verbose) printf("Item numero %d: ", i);
+    item = leItem();
+    insereItem(pMemoria, &item);
+
     removeUltimo(pMemoria, &item);
     removeUltimo(pMemoria, &item);
 

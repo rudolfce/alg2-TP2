@@ -87,41 +87,6 @@ int insereItem(TMemoria* pMemoria, TItem* pItem){
     return 1;
 }
 
-/* A funcao mantemOrganizado resolve os problemas gerados pelas posicoes
-   imprevisiveis das posicoes vazias e das posicoes ocupadas.
-   A funcao garante que, em caso de memoria muito fragmentada,
-   os cursores se mantenham organizados.
-
-   Essa funcao foi escrita a partir dos trechos repetidos em removePrimeiro
-   e removeUltimo para simplificacao de codigo. */
-void mantemOrganizado(TMemoria* pMemoria, int curr_idx){
-    int prox_idx, ant_idx;
-
-    if(curr_idx < pMemoria->priCelulaDisp){
-        // Melhor caso: celula removida esta antes da primeira disponivel
-        // no vetor.
-        prox_idx = pMemoria->priCelulaDisp;
-        pMemoria->items[curr_idx].prox = pMemoria->priCelulaDisp;
-        pMemoria->items[curr_idx].ant = -1;
-        pMemoria->items[prox_idx].ant = curr_idx;
-        pMemoria->priCelulaDisp = curr_idx;
-    }
-    else{
-        // Demais casos: nao e possivel afirmar o indice da celula disponivel
-        // anterior sem verificacao.
-        ant_idx = pMemoria->priCelulaDisp;
-        while((pMemoria->items[ant_idx].prox<curr_idx) && (pMemoria->items[ant_idx].prox!=-1)){
-            ant_idx = pMemoria->items[ant_idx].prox;
-        }
-        prox_idx = pMemoria->items[ant_idx].prox;
-        if(prox_idx!=-1) pMemoria->items[prox_idx].ant = curr_idx;
-        pMemoria->items[ant_idx].prox = curr_idx;
-        pMemoria->items[curr_idx].ant = ant_idx;
-        pMemoria->items[curr_idx].prox = prox_idx;
-    }
-
-}
-
 int removePrimeiro(TMemoria* pMemoria, TItem* out_item){
     int pri_idx, novopri_idx;
 
@@ -131,11 +96,11 @@ int removePrimeiro(TMemoria* pMemoria, TItem* out_item){
 
     // Atualizando primeiro
     pMemoria->primeiro = novopri_idx;
-    pMemoria->items[novopri_idx].ant = -1;
+    if(!novopri_idx==-1) pMemoria->items[novopri_idx].ant = -1;
 
-    // Atualizando lista de memoria livre e remanuseando cursores
-    // conforme adequado
-    mantemOrganizado(pMemoria, pri_idx);
+    // Atualizando lista de memoria livre
+    pMemoria->items[pri_idx].prox = pMemoria->priCelulaDisp;
+    pMemoria->priCelulaDisp = pri_idx;
 
     // Setando valor de retorno em out_item
     *out_item = pMemoria->items[pri_idx].item;
@@ -155,9 +120,9 @@ int removeUltimo(TMemoria* pMemoria, TItem* out_item){
     pMemoria->ultimo = novoult_idx;
     if(novoult_idx!=-1) pMemoria->items[novoult_idx].prox = -1;
 
-    // Atualizando lista de memoria livre e remanuseando cursores
-    // conforme adequado
-    mantemOrganizado(pMemoria, ult_idx);
+    // Atualizando lista de memoria livre
+    pMemoria->items[ult_idx].prox = pMemoria->priCelulaDisp;
+    pMemoria->priCelulaDisp = ult_idx;
 
     // Setando valor de retorno em out_item
     *out_item = pMemoria->items[ult_idx].item;
