@@ -25,7 +25,6 @@ int memoriaVazia(TMemoria *);
 int numeroOcupadas(TMemoria *);
 int encontraAnterior(TMemoria *, int);
 int insereItem(TMemoria *, TItem *);
-void mantemOrganizado(TMemoria *, int);
 int removePrimeiro(TMemoria *, TItem *);
 int removeUltimo(TMemoria *, TItem *);
 void imprimeSequencia(TMemoria *);

@@ -18,6 +18,11 @@ TItem leItem(){
     return item;
 }
 
+void printItem(TItem item){
+    printf("Chave: %d / ", item.chave);
+    printf("Dado: %d\n", item.data);
+}
+
 int main(int argc, char* argv[]){
     int i, numcel;
 
@@ -45,15 +50,20 @@ int main(int argc, char* argv[]){
 
     for(i=0; i<numcel; i++){
         if(verbose) printf("Item numero %d: ", i);
-        item = leItem();
-        insereItem(pMemoria, &item);
+	item = leItem();
+        if(!insereItem(pMemoria, &item)) fprintf(stderr, "Item nao incluido.\n");
+	if(verbose) printf("Ocupadas: %d\n", numeroOcupadas(pMemoria));
     }
-    removePrimeiro(pMemoria, &item);
-    removePrimeiro(pMemoria, &item);
+    if(verbose) printf("Removendo dois items:\n");
+    if(!removePrimeiro(pMemoria, &item))  fprintf(stderr, "Memoria vazia.\n");
+    if(verbose) printItem(item);
+    if(!removePrimeiro(pMemoria, &item))  fprintf(stderr, "Memoria vazia.\n");
+    if(verbose) printItem(item);
+
 
     if(verbose) printf("Item numero %d: ", i);
     item = leItem();
-    insereItem(pMemoria, &item);
+    if(!(insereItem(pMemoria, &item))) fprintf(stderr, "Item nao incluido.\n");
 
     removeUltimo(pMemoria, &item);
     removeUltimo(pMemoria, &item);

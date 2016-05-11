@@ -44,7 +44,7 @@ int encontraAnterior(TMemoria* pMemoria, int chave){
     while((chave > ichave) && (i != -1)){
         anti = i;
         i = pMemoria->items[i].prox;
-        ichave = pMemoria->items[i].item.chave;
+        if(i!=-1) ichave = pMemoria->items[i].item.chave;
     }
     return anti;
 }
@@ -56,7 +56,7 @@ int insereItem(TMemoria* pMemoria, TItem* pItem){
     idx = pMemoria->priCelulaDisp;
     pMemoria->items[idx].item = *pItem;
     pMemoria->priCelulaDisp = pMemoria->items[idx].prox;
-    pMemoria->items[pMemoria->priCelulaDisp].ant = -1;
+    if(!(pMemoria->priCelulaDisp==-1)) pMemoria->items[pMemoria->priCelulaDisp].ant = -1;
 
     if(memoriaVazia(pMemoria)){
         pMemoria->primeiro = idx;
